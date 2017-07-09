@@ -117,6 +117,7 @@ void POSIT::createOpenGLProjectionMatrix( const double &width, const double &hei
 	projectionMatrix[9] = 2.0 * ( cvmGet( intrinsics, 1, 2 ) / height ) - 1.0;
 
 
+
 	/**TODO, projectMatrix 10,11,14 are a bit diffrent from the matrix given in CSCI6554
 		reference, http://www.songho.ca/opengl/gl_projectionmatrix.html
 	**/
