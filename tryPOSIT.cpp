@@ -1,4 +1,13 @@
-//
+//This is a demo for POSIT algorithm,
+// given the 3d model and 4 vertices in both model space and 2d image, approximately calculate its transformation
+//in 3d. Draw the estimated transformation of the model in 3d, then project the estimated position of 4 vertices back
+//to the 2d image, compare them with their original mark.
+
+//note the image taken by webcam should not be mirrored like in video chat.
+//note that the coordinate system of image should be a normal 2d with the origin at the center of image.
+//note that the cvPOSIT function requires all model points in left-hand coordinate system,
+//and out put the transformation matrix in left-hand coordinate system.
+//to properly draw the transformed model, must first do glScale(1,1,-1); then the matrix can be used as normal
 // Created by Qichen Wang on 10/4/17.
 //
 
@@ -8,17 +17,14 @@
 using namespace std;
 
 /* windows size and position constants */
-const int GL_WIN_INITIAL_WIDTH = 1080;
-const int GL_WIN_INITIAL_HEIGHT = 720;
+const int IMAGE_WIDTH = 1080;
+const int IMAGE_HEIGHT = 720;
 const int GL_WIN_INITIAL_X = 0;
 const int GL_WIN_INITIAL_Y = 0;
 const int GL_NEAR = 1.f;
 const int GL_FAR = 1000.f;
 const int ESC = 27;
 const float FOCAL_LENGTH = 896.7f;
-
-int mWinWidth = GL_WIN_INITIAL_WIDTH;
-int mWinHeight = GL_WIN_INITIAL_HEIGHT;
 
 vector<CvPoint2D32f> estimatedImagePoints;
 vector<CvPoint2D32f> srcImagePoints;
@@ -33,9 +39,7 @@ float boxDepthInPixel = 50.f;
 
 
 void glutResize(int width, int height){
-    mWinWidth = width;
-    mWinHeight = height;
-	glViewport(0, 0, width, height);
+	glViewport(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 }
@@ -53,49 +57,43 @@ void glutKeyboard(unsigned char key, int x, int y)
 
 void renderBox(float x, float y, float z)
 {
-	glBegin(GL_QUADS);
-		// Front Face
-        glColor3f(1, 0, 1);
-		glNormal3f( 0.0f, 0.0f, 1.0f);
-		glVertex3f( 0.0f,  0.0f,  0.0f);
-		glVertex3f( x,  0.0f,  0.0f);
-		glVertex3f( x,  y,  0.0f);
-		glVertex3f( 0.0f,  y,  0.0f);
-		// Back Face
-        glColor3f(1,1,0);
-		glNormal3f( 0.0f, 0.0f,-1.0f);
-		glVertex3f( 0.0f,  y,  -1 * z);
-		glVertex3f( x,  y, -1 * z);
-		glVertex3f( x,  0.f, -1 * z);
-		glVertex3f( 0.f,  0.0f, -1 * z);
-		// Top Face
-		glColor3f(1,0,0);
-        glNormal3f( 0.0f, 1.0f, 0.0f);
-		glVertex3f( 0.0f,  y,  -1 * z);
-		glVertex3f( 0.f,  y,  0.0f);
-		glVertex3f( x,  y, 0.f);
-		glVertex3f( x,  y, -1 * z);
-		// Bottom Face
-        glColor3f(0,1,0);
-		glNormal3f( 0.0f,-1.0f, 0.0f);
-		glVertex3f( 0.0f,  0.0f,  0.0f);
-		glVertex3f( 0.0f,  0.0f, -1 * z);
-		glVertex3f( x,  0.0f, -1 * z);
-		glVertex3f( x,  0.0f,  0.0f);
-		// Right face
-        glColor3f(0,1,1);
-		glNormal3f( 1.0f, 0.0f, 0.0f);
-		glVertex3f( x,  y, 0.0f);
-		glVertex3f( x,  0.0f, 0.f);
-		glVertex3f( x,  0.0f, -1 * z);
-		glVertex3f( x,  y, -1 * z);
-		// Left Face
-        glColor3f(0, 0, 1);
-		glNormal3f(-1.0f, 0.0f, 0.0f);
-		glVertex3f( 0.0f,  y, -1 * z);
-		glVertex3f( 0.0f,  0.0f, -1 * z);
-		glVertex3f( 0.0f,  0.0f, 0.f);
-		glVertex3f( 0.0f,  y, 0.f);
+    glBegin(GL_QUADS);
+    // Front Face
+    glColor3f(1, 0, 1);
+    glVertex3f( -x,  y,  0.0f);
+    glVertex3f( -x,  0.0f,  0.0f);
+    glVertex3f( 0.0f,  0.0f,  0.0f);
+    glVertex3f( 0.0f,  y,  0.0f);
+    // Back Face
+    glColor3f(1,1,0);
+    glVertex3f( -x,  0.f, z);
+    glVertex3f( -x,  y, z);
+    glVertex3f( 0.0f,  y,  z);
+    glVertex3f( 0.f,  0.0f, z);
+    // Top Face
+    glColor3f(1,0,0);
+    glVertex3f( -x,  y, z);
+    glVertex3f( -x,  y, 0.f);
+    glVertex3f( 0.f,  y,  0.0f);
+    glVertex3f( 0.0f,  y,  z);
+    // Bottom Face
+    glColor3f(0,1,0);
+    glVertex3f( -x,  0.0f,  0.0f);
+    glVertex3f( -x,  0.0f, z);
+    glVertex3f( 0.0f,  0.0f, z);
+    glVertex3f( 0.0f,  0.0f,  0.0f);
+    // Right face
+    glColor3f(0,1,1);
+    glVertex3f( 0.0f,  y, 0.f);
+    glVertex3f( 0.0f,  0.0f, 0.f);
+    glVertex3f( 0.0f,  0.0f, z);
+    glVertex3f( 0.0f,  y, z);
+    // Left Face
+    glColor3f(0, 0, 1);
+    glVertex3f( -x,  y, 0.0f);
+    glVertex3f( -x,  y, z);
+    glVertex3f( -x,  0.0f, z);
+    glVertex3f( -x,  0.0f, 0.f);
     glEnd();
 }
 
@@ -120,7 +118,7 @@ void glutDisplay(void)
 
 	//Draw the object with the estimated pose
 	glLoadIdentity();
-	glScalef( 1.0f, 1.0f, -1.0f); // was 1,1, -1 in the example, donno why
+	glScalef( 1.0f, 1.0f, -1.0f); // first reverse z axis, so we are in left-handed coordinate system
 	glMultMatrixf(posePOSIT );
 //	glEnable( GL_LIGHTING );
 //	glEnable( GL_LIGHT0 );
@@ -134,11 +132,13 @@ void glutDisplay(void)
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	//2D projection with (0,0) in the centre of the image
-	glOrtho( -mWinWidth *0.5, mWinWidth*0.5, -mWinHeight * 0.5, mWinHeight * 0.5, -1.0, 1.0);
+    //the dot and cross markers are drawn in Orthographic Volume
+	glOrtho( -IMAGE_WIDTH*0.5, IMAGE_WIDTH*0.5,
+             -IMAGE_HEIGHT *  0.5, IMAGE_HEIGHT * 0.5, -1.0, 1.0);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glLineWidth( 2.0f );
-	glColor3f( 1.0f, 0.0f, 0.0f);
+	glColor3f( 1.0f, 1.0f, 1.0f);
 	for ( size_t  p=0; p < srcImagePoints.size(); p++ )
 		drawCross(srcImagePoints[p].x, srcImagePoints[p].y, 10 );
 
@@ -160,23 +160,22 @@ int main(int argc, char** argv) {
     vector<CvPoint3D32f> modelPoints;
     modelPoints.push_back(cvPoint3D32f(0.0f, 0.0f, 0.0f));
     modelPoints.push_back(cvPoint3D32f(0.0f, boxHeightInPixel, 0.0f));
-    modelPoints.push_back(cvPoint3D32f(0.0f, 0.0f, -1 * boxDepthInPixel));
-    modelPoints.push_back(cvPoint3D32f(boxLengthInPixel, boxHeightInPixel, 0.0f));
+    modelPoints.push_back(cvPoint3D32f(0.0f, 0.0f, boxDepthInPixel));
+    modelPoints.push_back(cvPoint3D32f(-boxLengthInPixel, boxHeightInPixel, 0.0f));
 
     CvPOSITObject* positObject = cvCreatePOSITObject( &modelPoints[0], (int)modelPoints.size() );
     CvMat* intrinsics = cvCreateMat( 3, 3, CV_32F );
 	cvmSet( intrinsics , 0, 0, FOCAL_LENGTH);
 	cvmSet( intrinsics , 1, 1, FOCAL_LENGTH);
-	cvmSet( intrinsics , 0, 2, 1080 * 0.5 );//principal point in the centre of the image
-	cvmSet( intrinsics , 1, 2, 720 * 0.5 );
+	cvmSet( intrinsics , 0, 2, IMAGE_WIDTH * 0.5 );//principal point in the centre of the image
+	cvmSet( intrinsics , 1, 2, IMAGE_HEIGHT * 0.5 );
 	cvmSet( intrinsics , 2, 2, 1.0 );
 
 	// convert the pixel coordinate to right hand coordinate, origin at center
-	srcImagePoints.push_back(cvPoint2D32f(87.f, 94.f));
-    srcImagePoints.push_back(cvPoint2D32f(82.f, 11.f));
-    srcImagePoints.push_back(cvPoint2D32f(-27.f, 68.f));
-    srcImagePoints.push_back(cvPoint2D32f(348.f, -41.f));
-
+	srcImagePoints.push_back(cvPoint2D32f(-85.f, -91.f));
+    srcImagePoints.push_back(cvPoint2D32f(-80.f, -10.f));
+    srcImagePoints.push_back(cvPoint2D32f(28.f, -67.f));
+    srcImagePoints.push_back(cvPoint2D32f(-347.f, 40.f));
 	CvMatr32f rotation_matrix = new float[9];
 	CvVect32f translation_vector = new float[3];
     CvTermCriteria criteria = cvTermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 100, 1.0e-4f);
@@ -206,18 +205,18 @@ int main(int argc, char** argv) {
 	posePOSIT[14] = translation_vector[2];
 	posePOSIT[15] = 1.0;
 
-	projectionMatrix[0] = (float) (2.0 * cvmGet( intrinsics, 0, 0 ) / mWinWidth);
+	projectionMatrix[0] = (float) (2.0 * cvmGet( intrinsics, 0, 0 ) / IMAGE_WIDTH);
 	projectionMatrix[1] = 0.0;
 	projectionMatrix[2] = 0.0;
 	projectionMatrix[3] = 0.0;
 
 	projectionMatrix[4] = 0.0;
-	projectionMatrix[5] = (float) (2.0 * cvmGet( intrinsics, 1, 1 ) / mWinHeight);
+	projectionMatrix[5] = (float) (2.0 * cvmGet( intrinsics, 1, 1 ) / IMAGE_HEIGHT);
 	projectionMatrix[6] = 0.0;
 	projectionMatrix[7] = 0.0;
 
-	projectionMatrix[8] = (float)(2.0 * ( cvmGet( intrinsics, 0, 2 ) / mWinWidth) - 1.0);
-	projectionMatrix[9] = (float)(2.0 * ( cvmGet( intrinsics, 1, 2 ) / mWinHeight) - 1.0);
+	projectionMatrix[8] = (float)(2.0 * ( cvmGet( intrinsics, 0, 2 ) / IMAGE_WIDTH) - 1.0);
+	projectionMatrix[9] = (float)(2.0 * ( cvmGet( intrinsics, 1, 2 ) / IMAGE_HEIGHT) - 1.0);
 
 
 
@@ -247,17 +246,17 @@ int main(int argc, char** argv) {
 		CvPoint2D32f point2D = cvPoint2D32f( 0.0, 0.0 );
 		if ( point3D[2] != 0 )
 		{
-			//TODO, as in similar triangles x:X = y:Y = z : Z, z is focal length
-			point2D.x = cvmGet( intrinsics, 0, 0 ) * point3D[0] / point3D[2];
-			point2D.y = cvmGet( intrinsics, 1, 1 ) * point3D[1] / point3D[2];
+            //TODO, as in similar triangles x:X = y:Y = z : Z, z is focal length,
+            // TODO, note that here Point3D is in left-hand coordinate system
+			point2D.x = (float)(cvmGet(intrinsics, 0, 0 ) * point3D[0] / point3D[2]);
+			point2D.y = (float)(cvmGet(intrinsics, 1, 1 ) * point3D[1] / point3D[2]);
 		}
 		estimatedImagePoints.push_back( point2D );
 	}
 
-
     glutInitDisplayMode( GLUT_DOUBLE | GLUT_DEPTH | GLUT_RGBA | GLUT_MULTISAMPLE );
     glutInitWindowPosition( GL_WIN_INITIAL_X, GL_WIN_INITIAL_Y );
-    glutInitWindowSize( GL_WIN_INITIAL_WIDTH, GL_WIN_INITIAL_HEIGHT );
+    glutInitWindowSize( IMAGE_WIDTH, IMAGE_HEIGHT );
     glutInit( &argc, argv );
     glutCreateWindow("OpenCV POSIT Tutorial");
 
