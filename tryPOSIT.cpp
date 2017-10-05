@@ -12,10 +12,10 @@ const int GL_WIN_INITIAL_WIDTH = 1080;
 const int GL_WIN_INITIAL_HEIGHT = 720;
 const int GL_WIN_INITIAL_X = 0;
 const int GL_WIN_INITIAL_Y = 0;
-const int GL_NEAR = 1.0;
-const int GL_FAR = 1000.0;
+const int GL_NEAR = 1.f;
+const int GL_FAR = 1000.f;
 const int ESC = 27;
-const float FOCAL_LENGTH = 986.f;
+const float FOCAL_LENGTH = 896.7f;
 
 int mWinWidth = GL_WIN_INITIAL_WIDTH;
 int mWinHeight = GL_WIN_INITIAL_HEIGHT;
@@ -24,6 +24,13 @@ vector<CvPoint2D32f> estimatedImagePoints;
 vector<CvPoint2D32f> srcImagePoints;
 float projectionMatrix[16] = {};
 float posePOSIT[16] = {};
+
+
+float boxLengthInPixel = 105.f;
+float boxHeightInPixel = 20.f;
+float boxDepthInPixel = 50.f;
+
+
 
 void glutResize(int width, int height){
     mWinWidth = width;
@@ -119,7 +126,7 @@ void glutDisplay(void)
 //	glEnable( GL_LIGHT0 );
 	glColor3f( 0.0f, 0.7f, 0.7f );
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	renderBox(105.f, 20.f, 50.f);
+	renderBox(boxLengthInPixel, boxHeightInPixel, boxDepthInPixel);
 //	glDisable( GL_LIGHTING );
 
 	//Draw the calculated 2D points
@@ -152,9 +159,9 @@ int main(int argc, char** argv) {
      */
     vector<CvPoint3D32f> modelPoints;
     modelPoints.push_back(cvPoint3D32f(0.0f, 0.0f, 0.0f));
-    modelPoints.push_back(cvPoint3D32f(0.0f, 20.0f, 0.0f));
-    modelPoints.push_back(cvPoint3D32f(0.0f, 0.0f, -50.0f));
-    modelPoints.push_back(cvPoint3D32f(105.0f, 20.0f, 0.0f));
+    modelPoints.push_back(cvPoint3D32f(0.0f, boxHeightInPixel, 0.0f));
+    modelPoints.push_back(cvPoint3D32f(0.0f, 0.0f, -1 * boxDepthInPixel));
+    modelPoints.push_back(cvPoint3D32f(boxLengthInPixel, boxHeightInPixel, 0.0f));
 
     CvPOSITObject* positObject = cvCreatePOSITObject( &modelPoints[0], (int)modelPoints.size() );
     CvMat* intrinsics = cvCreateMat( 3, 3, CV_32F );
@@ -164,15 +171,11 @@ int main(int argc, char** argv) {
 	cvmSet( intrinsics , 1, 2, 720 * 0.5 );
 	cvmSet( intrinsics , 2, 2, 1.0 );
 
-//    srcImagePoints.push_back(cvPoint2D32f(593.f, 432.f));
-//    srcImagePoints.push_back(cvPoint2D32f(590.f, 353.f));
-//    srcImagePoints.push_back(cvPoint2D32f(485.f, 407.f));
-//    srcImagePoints.push_back(cvPoint2D32f(840.f, 301.f));
 	// convert the pixel coordinate to right hand coordinate, origin at center
-	srcImagePoints.push_back(cvPoint2D32f(87.f, -94.f));
-    srcImagePoints.push_back(cvPoint2D32f(82.f, -11.f));
-    srcImagePoints.push_back(cvPoint2D32f(-27.f, -68.f));
-    srcImagePoints.push_back(cvPoint2D32f(348.f, 41.f));
+	srcImagePoints.push_back(cvPoint2D32f(87.f, 94.f));
+    srcImagePoints.push_back(cvPoint2D32f(82.f, 11.f));
+    srcImagePoints.push_back(cvPoint2D32f(-27.f, 68.f));
+    srcImagePoints.push_back(cvPoint2D32f(348.f, -41.f));
 
 	CvMatr32f rotation_matrix = new float[9];
 	CvVect32f translation_vector = new float[3];
@@ -185,6 +188,8 @@ int main(int argc, char** argv) {
 			cout << endl;
 		}
     }
+    cout << "The translation matrix is: ";
+    cout << translation_vector[0] << " " << translation_vector[1] << " " << translation_vector[2] << endl;
 	//note that the estimated rotation matrix is not ortho-normal;
     for (int f=0; f<3; f++)
 	{
