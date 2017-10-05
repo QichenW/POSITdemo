@@ -48,36 +48,42 @@ void renderBox(float x, float y, float z)
 {
 	glBegin(GL_QUADS);
 		// Front Face
+        glColor3f(1, 0, 1);
 		glNormal3f( 0.0f, 0.0f, 1.0f);
 		glVertex3f( 0.0f,  0.0f,  0.0f);
 		glVertex3f( x,  0.0f,  0.0f);
 		glVertex3f( x,  y,  0.0f);
 		glVertex3f( 0.0f,  y,  0.0f);
 		// Back Face
+        glColor3f(1,1,0);
 		glNormal3f( 0.0f, 0.0f,-1.0f);
 		glVertex3f( 0.0f,  y,  -1 * z);
 		glVertex3f( x,  y, -1 * z);
 		glVertex3f( x,  0.f, -1 * z);
 		glVertex3f( 0.f,  0.0f, -1 * z);
 		// Top Face
-		glNormal3f( 0.0f, 1.0f, 0.0f);
+		glColor3f(1,0,0);
+        glNormal3f( 0.0f, 1.0f, 0.0f);
 		glVertex3f( 0.0f,  y,  -1 * z);
 		glVertex3f( 0.f,  y,  0.0f);
 		glVertex3f( x,  y, 0.f);
 		glVertex3f( x,  y, -1 * z);
 		// Bottom Face
+        glColor3f(0,1,0);
 		glNormal3f( 0.0f,-1.0f, 0.0f);
 		glVertex3f( 0.0f,  0.0f,  0.0f);
 		glVertex3f( 0.0f,  0.0f, -1 * z);
 		glVertex3f( x,  0.0f, -1 * z);
 		glVertex3f( x,  0.0f,  0.0f);
 		// Right face
+        glColor3f(0,1,1);
 		glNormal3f( 1.0f, 0.0f, 0.0f);
 		glVertex3f( x,  y, 0.0f);
 		glVertex3f( x,  0.0f, 0.f);
 		glVertex3f( x,  0.0f, -1 * z);
 		glVertex3f( x,  y, -1 * z);
 		// Left Face
+        glColor3f(0, 0, 1);
 		glNormal3f(-1.0f, 0.0f, 0.0f);
 		glVertex3f( 0.0f,  y, -1 * z);
 		glVertex3f( 0.0f,  0.0f, -1 * z);
@@ -109,12 +115,12 @@ void glutDisplay(void)
 	glLoadIdentity();
 	glScalef( 1.0f, 1.0f, -1.0f); // was 1,1, -1 in the example, donno why
 	glMultMatrixf(posePOSIT );
-	glEnable( GL_LIGHTING );
-	glEnable( GL_LIGHT0 );
+//	glEnable( GL_LIGHTING );
+//	glEnable( GL_LIGHT0 );
 	glColor3f( 0.0f, 0.7f, 0.7f );
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	renderBox(105.f, 20.f, 50.f);
-	glDisable( GL_LIGHTING );
+//	glDisable( GL_LIGHTING );
 
 	//Draw the calculated 2D points
 	glDisable(GL_DEPTH_TEST);
@@ -162,11 +168,11 @@ int main(int argc, char** argv) {
 //    srcImagePoints.push_back(cvPoint2D32f(590.f, 353.f));
 //    srcImagePoints.push_back(cvPoint2D32f(485.f, 407.f));
 //    srcImagePoints.push_back(cvPoint2D32f(840.f, 301.f));
-	// convert the pixel coordinate to right hand coordinate
-	srcImagePoints.push_back(cvPoint2D32f(53.f, -72.f));
-    srcImagePoints.push_back(cvPoint2D32f(50.f, 7.f));
-    srcImagePoints.push_back(cvPoint2D32f(-55.f, 047.f));
-    srcImagePoints.push_back(cvPoint2D32f(340.f, 59.f));
+	// convert the pixel coordinate to right hand coordinate, origin at center
+	srcImagePoints.push_back(cvPoint2D32f(87.f, -94.f));
+    srcImagePoints.push_back(cvPoint2D32f(82.f, -11.f));
+    srcImagePoints.push_back(cvPoint2D32f(-27.f, -68.f));
+    srcImagePoints.push_back(cvPoint2D32f(348.f, 41.f));
 
 	CvMatr32f rotation_matrix = new float[9];
 	CvVect32f translation_vector = new float[3];
