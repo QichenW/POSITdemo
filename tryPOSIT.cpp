@@ -44,6 +44,42 @@ void glutResize(int width, int height){
 	glLoadIdentity();
 }
 
+/**
+ * create a ppm file
+ */
+void PPMWriter(unsigned char *in,char *name,int dimx, int dimy)
+{
+
+	// note pixel coordinate and coordinate in image file are different in y-direction
+    int i, j;
+    FILE *fp = fopen(name, "wb"); /* b - binary mode */
+    (void) fprintf(fp, "P6\n%d %d\n255\n", dimx, dimy);
+    for (j = dimy - 1; j > - 1; --j)
+    {
+        for (i = 0; i < dimx; ++i)
+        {
+            static unsigned char color[3];
+            color[0] = in[3*i+3*j*dimx];  /* red */
+            color[1] = in[3*i+3*j*dimx+1];  /* green */
+            color[2] = in[3*i+3*j*dimx+2];  /* blue */
+            (void) fwrite(color, 1, 3, fp);
+        }
+    }
+    (void) fclose(fp);
+}
+
+/**
+ * helper function to save the image
+ */
+void saveImage()
+{
+    unsigned char* image = (unsigned char*)malloc(sizeof(unsigned char) * 3 * IMAGE_WIDTH * IMAGE_HEIGHT);
+    glReadPixels(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT, GL_RGB, GL_UNSIGNED_BYTE, image);
+    char buffer [33];
+    sprintf(buffer, "capture/%d SV-%f ms.ppm", 1, 1.0f);
+
+    PPMWriter(image,buffer, IMAGE_WIDTH, IMAGE_HEIGHT);
+}
 
 // Function that handles keyboard inputs
 void glutKeyboard(unsigned char key, int x, int y)
@@ -52,6 +88,12 @@ void glutKeyboard(unsigned char key, int x, int y)
 	{
 		case ESC:
 			exit(0);
+            break;
+        case 's':
+            saveImage();
+            break;
+        default:
+            break;
 	}
 }
 
