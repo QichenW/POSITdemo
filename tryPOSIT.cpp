@@ -296,12 +296,9 @@ int main(int argc, char** argv) {
     glutInitWindowPosition( GL_WIN_INITIAL_X, GL_WIN_INITIAL_Y );
     glutInitWindowSize( IMAGE_WIDTH, IMAGE_HEIGHT );
     glutInit( &argc, argv );
-    glutCreateWindow("OpenCV POSIT Tutorial");
+    glutCreateWindow("OpenCV/OpenGL POSIT Demo");
 
-    /*
-       The function below are called when the respective event
-       is triggered.
-    */
+
     glutReshapeFunc(glutResize);
     glutDisplayFunc(glutDisplay);
     glutKeyboardFunc(glutKeyboard);
