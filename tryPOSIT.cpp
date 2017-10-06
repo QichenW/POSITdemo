@@ -1,4 +1,4 @@
-//This is a demo for POSIT algorithm,
+//This is a demo for POSIT algorithm, please see the demo image included in the repo.
 // given the 3d model and 4 vertices in both model space and 2d image, approximately calculate its transformation
 //in 3d. Draw the estimated transformation of the model in 3d, then project the estimated position of 4 vertices back
 //to the 2d image, compare them with their original mark.
@@ -76,7 +76,7 @@ void saveImage()
     unsigned char* image = (unsigned char*)malloc(sizeof(unsigned char) * 3 * IMAGE_WIDTH * IMAGE_HEIGHT);
     glReadPixels(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT, GL_RGB, GL_UNSIGNED_BYTE, image);
     char buffer [33];
-    sprintf(buffer, "capture/%d SV-%f ms.ppm", 1, 1.0f);
+    sprintf(buffer, "capture/%d.ppm", 1);
 
     PPMWriter(image,buffer, IMAGE_WIDTH, IMAGE_HEIGHT);
 }
