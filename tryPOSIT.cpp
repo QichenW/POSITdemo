@@ -88,7 +88,6 @@ void glutKeyboard(unsigned char key, int x, int y)
 	{
 		case ESC:
 			exit(0);
-            break;
         case 's':
             saveImage();
             break;
@@ -162,12 +161,9 @@ void glutDisplay(void)
 	glLoadIdentity();
 	glScalef( 1.0f, 1.0f, -1.0f); // first reverse z axis, so we are in left-handed coordinate system
 	glMultMatrixf(posePOSIT );
-//	glEnable( GL_LIGHTING );
-//	glEnable( GL_LIGHT0 );
 	glColor3f( 0.0f, 0.7f, 0.7f );
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	renderBox(boxLengthInPixel, boxHeightInPixel, boxDepthInPixel);
-//	glDisable( GL_LIGHTING );
 
 	//Draw the calculated 2D points
 	glDisable(GL_DEPTH_TEST);
@@ -288,8 +284,8 @@ int main(int argc, char** argv) {
 		CvPoint2D32f point2D = cvPoint2D32f( 0.0, 0.0 );
 		if ( point3D[2] != 0 )
 		{
-            //TODO, as in similar triangles x:X = y:Y = z : Z, z is focal length,
-            // TODO, note that here Point3D is in left-hand coordinate system
+            //as in similar triangles x:X = y:Y = z : Z, z is focal length,
+            //note that here Point3D is in left-hand coordinate system
 			point2D.x = (float)(cvmGet(intrinsics, 0, 0 ) * point3D[0] / point3D[2]);
 			point2D.y = (float)(cvmGet(intrinsics, 1, 1 ) * point3D[1] / point3D[2]);
 		}
@@ -306,9 +302,9 @@ int main(int argc, char** argv) {
        The function below are called when the respective event
        is triggered.
     */
-    glutReshapeFunc(glutResize);       // called every time  the screen is resized
-    glutDisplayFunc(glutDisplay);      // called when window needs to be redisplayed
-    glutKeyboardFunc(glutKeyboard);    // called when the application receives a input from the keyboard
+    glutReshapeFunc(glutResize);
+    glutDisplayFunc(glutDisplay);
+    glutKeyboardFunc(glutKeyboard);
 
 	glutMainLoop();
 	return 0;
