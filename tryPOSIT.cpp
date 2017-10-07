@@ -30,7 +30,7 @@ vector<CvPoint2D32f> estimatedImagePoints;
 vector<CvPoint2D32f> srcImagePoints;
 float projectionMatrix[16] = {};
 float posePOSIT[16] = {};
-
+CvMat* intrinsics;
 
 float boxLengthInPixel = 105.f;
 float boxHeightInPixel = 20.f;
@@ -209,7 +209,7 @@ int main(int argc, char** argv) {
     modelPoints.push_back(cvPoint3D32f(-boxLengthInPixel, boxHeightInPixel, 0.0f));
 
     CvPOSITObject* positObject = cvCreatePOSITObject( &modelPoints[0], (int)modelPoints.size() );
-    CvMat* intrinsics = cvCreateMat( 3, 3, CV_32F );
+    intrinsics = cvCreateMat( 3, 3, CV_32F );
 	cvmSet( intrinsics , 0, 0, FOCAL_LENGTH);
 	cvmSet( intrinsics , 1, 1, FOCAL_LENGTH);
 	cvmSet( intrinsics , 0, 2, IMAGE_WIDTH * 0.5 );//principal point in the centre of the image
