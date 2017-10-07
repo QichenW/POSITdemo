@@ -136,6 +136,13 @@ void renderBox(float x, float y, float z)
     glVertex3f( -x,  0.0f, z);
     glVertex3f( -x,  0.0f, 0.f);
     glEnd();
+
+	// the "facing direction of the box"
+    glBegin(GL_LINES);
+    glColor3f(1, 1, 1);
+    glVertex3f(0, 0, 0);
+    glVertex3f(0, 0, -500);
+    glEnd();
 }
 
 void drawCross( float x, float y, float size )
