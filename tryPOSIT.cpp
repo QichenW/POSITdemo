@@ -166,7 +166,7 @@ void glutDisplay(void)
 
 	//Draw the object with the estimated pose
 	glLoadIdentity();
-	glScalef( 1.0f, 1.0f, -1.0f); // finally reverse z axis, so we are in left-handed coordinate system
+	glScalef( 1.0f, 1.0f, -1.0f); // finally reverse z axis, so we transform left-handed coordinate system, to right-hand.
 	glMultMatrixf(posePOSIT );
 	glColor3f( 0.0f, 0.7f, 0.7f );
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
